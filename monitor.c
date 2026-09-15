@@ -1,5 +1,7 @@
 #include "codexion.h"
 
+// Returns 1 once every one of the n coders has completed at
+// least `required` compiles.
 static int	all_done(t_coder *coder, int n, int required)
 {
 	int	i;
@@ -19,6 +21,8 @@ static int	all_done(t_coder *coder, int n, int required)
 	return (1);
 }
 
+// Scans coders in id order; logs and returns 1 for the first one
+// whose time since its last compile start exceeds time_to_burnout.
 static int	check_burnout(t_monitor_args *args)
 {
 	int		i;
@@ -42,6 +46,9 @@ static int	check_burnout(t_monitor_args *args)
 	return (0);
 }
 
+// Runs on its own thread, polling every 500us: stops the
+// simulation as soon as a burnout is detected or every coder has
+// compiled enough times.
 void	*monitor_routine(void *arg)
 {
 	t_monitor_args	*args;

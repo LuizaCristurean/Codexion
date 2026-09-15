@@ -1,5 +1,6 @@
 #include "codexion.h"
 
+// Current wall-clock time in milliseconds (absolute, via gettimeofday).
 long	get_time_ms(void)
 {
     struct timeval tv;
@@ -8,6 +9,8 @@ long	get_time_ms(void)
     return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
+// Allocates the n dongles: all free, never used, and not in any
+// phantom cooldown (released_at starts far in the past).
 static t_dongle	*init_dongles(int n)
 {
     t_dongle	*dongles;
@@ -21,13 +24,15 @@ static t_dongle	*init_dongles(int n)
     {
     	dongles[i].id = i;
     	dongles[i].in_use = 0;
-    	dongles[i].released_at = 0;
+    	dongles[i].released_at = -1000000;
     	pthread_mutex_init(&dongles[i].lock, NULL);
     	i++;
     }
     return (dongles);
 }
 
+// Allocates the n coders seated in a circle: coder i owns dongles[i]
+// as its right dongle and dongles[i-1] as its left dongle.
 static t_coder	*init_coders(t_dongle *dongles, t_config *config, t_shared *shared)
 {
     t_coder	*coders;
@@ -55,6 +60,8 @@ static t_coder	*init_coders(t_dongle *dongles, t_config *config, t_shared *share
     return (coders);
 }
 
+// Allocates the shared priority queue and initializes every shared
+// mutex/condvar/stop flag used across coder and monitor threads.
 static int init_shared(t_shared *shared, int n)
 {
 	shared->queue.requests = malloc(sizeof(t_request) * n);
@@ -70,6 +77,8 @@ static int init_shared(t_shared *shared, int n)
 	return (1);
 }
 
+// Runs all the init_* helpers in order and records the simulation's
+// absolute start time, used to convert timestamps to relative ms.
 int setup(t_config *config, t_shared *shared, t_dongle **dongles, t_coder **coders)
 {
     *dongles = init_dongles(config->number_of_coders);

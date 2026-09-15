@@ -1,5 +1,6 @@
 #include "codexion.h"
 
+// Returns 1 if str is a non-empty sequence of digits, 0 otherwise.
 static	int  is_valid_number(char *str)
 {
 	int	i;
@@ -17,6 +18,8 @@ static	int  is_valid_number(char *str)
 	return (1);
 }
 
+// Validates argc/argv: exactly 8 numeric arguments, then a scheduler
+// name that must be "fifo" or "edf".
 int arg_checker(int ac, char **av)
 {
     int i;
@@ -34,6 +37,8 @@ int arg_checker(int ac, char **av)
     return (strcmp(av[i], "fifo") == 0 || strcmp(av[i], "edf") == 0);
 }
 
+// Converts the already-validated argv strings into t_config, used
+// read-only by every thread for the rest of the run.
 void    fill_config(char **av, t_config *config)
 {
     config->number_of_coders = atoi(av[1]);

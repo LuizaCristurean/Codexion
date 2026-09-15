@@ -1,5 +1,7 @@
 #include "codexion.h"
 
+// Entry point: validate args, build the config, set up shared state,
+// run the simulation, then free everything.
 int	main(int ac, char **av)
 {
 	t_config    config;

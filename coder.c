@@ -1,5 +1,8 @@
 #include "codexion.h"
 
+// Records the start of a new compile (this resets the coder's
+// burnout deadline), logs it, sleeps time_to_compile, then counts
+// the compile as done.
 static void	do_compile(t_coder *coder)
 {
 	pthread_mutex_lock(&coder->lock);
@@ -13,6 +16,7 @@ static void	do_compile(t_coder *coder)
 	pthread_mutex_unlock(&coder->lock);
 }
 
+// Logs the debugging phase and sleeps for time_to_debug.
 static void	do_debug(t_coder *coder)
 {
 	coder->status = DEBUGGING;
@@ -20,6 +24,7 @@ static void	do_debug(t_coder *coder)
 	usleep(coder->config->time_to_debug * 1000);
 }
 
+// Logs the refactoring phase and sleeps for time_to_refactor.
 static void	do_refactor(t_coder *coder)
 {
 	coder->status = REFACTORING;
@@ -27,6 +32,10 @@ static void	do_refactor(t_coder *coder)
 	usleep(coder->config->time_to_refactor * 1000);
 }
 
+// A coder's whole life cycle: acquire both dongles, compile,
+// release them, debug, refactor, repeat. Checks the stop flag
+// after every phase so it never starts a new phase once the
+// simulation has been told to stop.
 void	*coder_routine(void *arg)
 {
 	t_coder	*coder;
@@ -40,7 +49,11 @@ void	*coder_routine(void *arg)
 		log_state(coder, "has taken a dongle");
 		do_compile(coder);
 		release_dongles(coder);
+		if (is_stopped(coder->shared))
+			break;
 		do_debug(coder);
+		if (is_stopped(coder->shared))
+			break;
 		do_refactor(coder);
 	}
 	return (NULL);

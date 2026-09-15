@@ -1,5 +1,8 @@
 #include "codexion.h"
 
+// Marks both of the coder's dongles free again, timestamps the
+// release (start of their cooldown window), and wakes up any
+// coder currently waiting on the queue.
 void	release_dongles(t_coder *coder)
 {
 	long now;

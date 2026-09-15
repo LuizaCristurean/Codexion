@@ -11,6 +11,7 @@ RESET	= \033[0m
 SRC	=	coder.c			\
 		cleanup.c		\
 		codexion.c		\
+		cooldown.c		\
 		dongle.c		\
 		heap.c			\
 		init.c			\

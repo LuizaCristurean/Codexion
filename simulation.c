@@ -1,5 +1,6 @@
 #include "codexion.h"
 
+// Spawns one thread per coder, each running coder_routine.
 static int	create_coder_threads(t_coder *coders, int n)
 {
 	int	i;
@@ -14,6 +15,7 @@ static int	create_coder_threads(t_coder *coders, int n)
 	return (1);
 }
 
+// Blocks until every coder thread has returned.
 static void	join_coder_threads(t_coder *coders, int n)
 {
 	int	i;
@@ -26,6 +28,8 @@ static void	join_coder_threads(t_coder *coders, int n)
 	}
 }
 
+// Starts the monitor thread and all coder threads, then waits for
+// everyone to finish before returning to main.
 int	run_simulation(t_config *config, t_shared *shared, t_coder *coders)
 {
 	t_monitor_args margs;

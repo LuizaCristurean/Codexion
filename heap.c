@@ -1,5 +1,6 @@
 #include "codexion.h"
 
+// Swaps two requests in place; used by every heap operation below.
 static void	swap_requests(t_request *a, t_request *b)
 {
 	t_request	tmp;
@@ -9,6 +10,8 @@ static void	swap_requests(t_request *a, t_request *b)
 	*b = tmp;
 }
 
+// Moves the request at index i up the heap while it has higher
+// priority than its parent.
 void	sift_up(t_queue *queue, int i, t_scheduler scheduler)
 {
 	int parent;
@@ -23,6 +26,8 @@ void	sift_up(t_queue *queue, int i, t_scheduler scheduler)
 	}
 }
 
+// Appends a new request at the end of the array and sifts it up
+// into its correct heap position.
 void	queue_push(t_queue *queue, t_request request, t_scheduler scheduler)
 {
 	queue->requests[queue->size] = request;
@@ -30,6 +35,8 @@ void	queue_push(t_queue *queue, t_request request, t_scheduler scheduler)
 	queue->size++;
 }
 
+// Moves the request at index i down the heap while either child
+// has higher priority, restoring the heap property below it.
 void	sift_down(t_queue *queue, int i, t_scheduler scheduler)
 {
 	int	left;
@@ -51,15 +58,3 @@ void	sift_down(t_queue *queue, int i, t_scheduler scheduler)
 		i = best;
     }
 }
-
-t_request	queue_pop(t_queue *queue, t_scheduler scheduler)
-{
-	t_request	top;
-
-	top = queue->requests[0];
-	queue->size--;
-	queue->requests[0] = queue->requests[queue->size];
-	sift_down(queue, 0, scheduler);
-	return (top);
-}
-

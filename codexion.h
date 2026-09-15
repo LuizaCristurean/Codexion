@@ -93,20 +93,25 @@ typedef struct	s_monitor_args
 void		cleanup(t_config *config, t_shared *shared, t_dongle *dongles, t_coder *coders);
 
 // coder.c
+
 void		*coder_routine(void *arg);
+
+// cooldown.c
+
+int	wait_for_dongles(t_coder *coder);
 
 // dongle.c
 
 void		lock_dongles(t_coder *coder);
 void		unlock_dongles(t_coder *coder);
 int			acquire_dongles(t_coder *coder);
+int			try_acquire(t_coder *coder);
 
 // heap.c
 
 void		sift_up(t_queue *queue, int i, t_scheduler scheduler);
 void		sift_down(t_queue *queue, int i, t_scheduler scheduler);
 void		queue_push(t_queue *queue, t_request request, t_scheduler scheduler);
-t_request	queue_pop(t_queue *queue, t_scheduler scheduler);
 
 // init.c
 

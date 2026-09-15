@@ -1,5 +1,6 @@
 #include "codexion.h"
 
+// Thread-safe read of the shared stop flag.
 int is_stopped(t_shared *shared)
 {
 	int stopped;
@@ -10,6 +11,8 @@ int is_stopped(t_shared *shared)
 	return (stopped);
 }
 
+// Thread-safe: sets the stop flag and wakes every coder currently
+// waiting for dongles, so each one notices and can exit.
 void	request_stop(t_shared *shared)
 {
 	pthread_mutex_lock(&shared->stop_lock);
