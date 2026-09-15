@@ -38,7 +38,7 @@ static t_coder	*init_coders(t_dongle *dongles, t_config *config, t_shared *share
 	t_coder	*coders;
 	int		i;
 	int		n;
-    
+
 	n = config->number_of_coders;
 	coders = malloc(sizeof(t_coder) * n);
 	if (coders == NULL)
