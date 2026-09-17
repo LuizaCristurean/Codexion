@@ -72,3 +72,48 @@ AI (Claude) was used as a design-discussion and code-review partner throughout t
 - All locks are acquired in a single, consistent global order — the queue lock first, then dongle locks (lower `id` first) — which prevents any possible deadlock between threads holding multiple locks at once.
 - Race condition example prevented: two neighboring coders both trying to start compiling at the same instant could, without the id-based lock order, each successfully lock one dongle and deadlock waiting for the other. The ordering rule guarantees one of them always wins both locks first, letting the simulation make progress.
 - Thread-safe communication between coders and the monitor: a coder's `last_compile_start` and `compiles_done` are only ever read or written while holding that coder's own mutex, so the monitor thread never observes a value mid-update.
+
+## 🧪 Testing examples
+
+Practical commands mapped to the evaluation's testing tiers, so the same checks can be reproduced live.
+
+### Easy — feasible parameters, nobody should burn out
+
+```bash
+./codexion 4 800 200 100 100 5 50 fifo
+./codexion 4 800 200 100 100 5 50 edf
+./codexion 10 1000 100 100 100 5 60 edf
+```
+
+What to check: the program runs to completion and returns; no `"burned out"` line appears; every coder id reaches `number_of_compiles_required` compiles. Quick check:
+
+```bash
+./codexion 4 800 200 100 100 5 50 edf | grep -c "burned out"   # expect 0
+./codexion 4 800 200 100 100 5 50 edf | grep -c "is compiling" # expect 4 * 5 = 20
+```
+
+### Less easy — burnout edge cases
+
+```bash
+./codexion 2 300 200 100 100 5 50 fifo   # infeasible: cycle (compile+debug+refactor) exceeds time_to_burnout
+./codexion 4 300 200 100 100 5 50 edf    # partial burnout: only the coder(s) that cannot make it in time burn out
+```
+
+What to check: the `"burned out"` line's timestamp is within a small tolerance (a few ms, see the *Basics* note on slow hardware) of `last_compile_start + time_to_burnout` for that coder; no coder logs `"has taken a dongle"` twice for the same dongle without a matching release in between (state transitions stay `taken -> compiling -> debugging/released -> ...`, never skip or repeat a state); the simulation stops promptly after the first burnout (no further `"is compiling"`/`"is refactoring"` lines for other coders beyond an unavoidable ~1ms in-flight race, explained in *Blocking cases handled*).
+
+### Medium
+
+```bash
+# cooldown behavior: a dongle must stay unavailable for dongle_cooldown ms after release
+./codexion 2 5000 200 100 100 5 500 fifo
+
+# scheduler differences: same parameters, only the policy changes
+./codexion 5 1000 200 150 100 8 80 fifo
+./codexion 5 1000 200 150 100 8 80 edf
+
+# refactoring timing + log serialization under load
+./codexion 50 2000 100 100 100 5 40 edf | wc -l
+```
+
+What to check: for the cooldown run, the gap between a dongle's release and its next `"has taken a dongle"` by a different coder is always `>= dongle_cooldown` (compare consecutive log timestamps for that pair of coders sharing the dongle); for the scheduler comparison, EDF serves the coder closest to burning out first while FIFO serves strictly in arrival order — the two logs should diverge in serving order under contention; for the high-coder-count run, every printed line matches the exact `<timestamp> <coder_id> <message>` format with nothing interleaved or truncated (log_state's `log_lock` serializes this).
+
