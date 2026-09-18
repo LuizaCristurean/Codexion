@@ -99,8 +99,6 @@ What to check: the program runs to completion and returns; no `"burned out"` lin
 ./codexion 4 300 200 100 100 5 50 edf    # partial burnout: only the coder(s) that cannot make it in time burn out
 ```
 
-What to check: the `"burned out"` line's timestamp is within a small tolerance (a few ms, see the *Basics* note on slow hardware) of `last_compile_start + time_to_burnout` for that coder; no coder logs `"has taken a dongle"` twice for the same dongle without a matching release in between (state transitions stay `taken -> compiling -> debugging/released -> ...`, never skip or repeat a state); the simulation stops promptly after the first burnout (no further `"is compiling"`/`"is refactoring"` lines for other coders beyond an unavoidable ~1ms in-flight race, explained in *Blocking cases handled*).
-
 ### Medium
 
 ```bash
@@ -114,6 +112,3 @@ What to check: the `"burned out"` line's timestamp is within a small tolerance (
 # refactoring timing + log serialization under load
 ./codexion 50 2000 100 100 100 5 40 edf | wc -l
 ```
-
-What to check: for the cooldown run, the gap between a dongle's release and its next `"has taken a dongle"` by a different coder is always `>= dongle_cooldown` (compare consecutive log timestamps for that pair of coders sharing the dongle); for the scheduler comparison, EDF serves the coder closest to burning out first while FIFO serves strictly in arrival order — the two logs should diverge in serving order under contention; for the high-coder-count run, every printed line matches the exact `<timestamp> <coder_id> <message>` format with nothing interleaved or truncated (log_state's `log_lock` serializes this).
-
