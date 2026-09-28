@@ -45,8 +45,7 @@ void	*coder_routine(void *arg)
 	{
 		if (acquire_dongles(coder) == 0)
 			break;
-		log_state(coder, "has taken a dongle");
-		log_state(coder, "has taken a dongle");
+		log_state(coder, "has taken the dongles");
 		do_compile(coder);
 		release_dongles(coder);
 		if (is_stopped(coder->shared))
