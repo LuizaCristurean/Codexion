@@ -109,6 +109,3 @@ What to check: the program runs to completion and returns; no `"burned out"` lin
 ./codexion 5 1000 200 150 100 8 80 fifo
 ./codexion 5 1000 200 150 100 8 80 edf
 
-# refactoring timing + log serialization under load
-./codexion 50 2000 100 100 100 5 40 edf | wc -l
-```
