@@ -98,7 +98,7 @@ void		*coder_routine(void *arg);
 
 // cooldown.c
 
-int	wait_for_dongles(t_coder *coder);
+int			wait_for_dongles(t_coder *coder);
 
 // dongle.c
 

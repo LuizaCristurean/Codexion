@@ -18,6 +18,20 @@ static	int	is_valid_number(char *str)
 	return (1);
 }
 
+static int	is_positive(char *str)
+{
+	int	i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] != '0')
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
 // Validates argc/argv: exactly 8 numeric arguments, then a scheduler
 // name that must be "fifo" or "edf".
 int	arg_checker(int ac, char **av)
@@ -34,6 +48,8 @@ int	arg_checker(int ac, char **av)
 		else
 			return (0);
 	}
+	if (is_positive(av[1]) == 0 || is_positive(av[2]) == 0 || is_positive(av[6]) == 0)
+		return (0);
 	return (strcmp(av[i], "fifo") == 0 || strcmp(av[i], "edf") == 0);
 }
 

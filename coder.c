@@ -32,6 +32,13 @@ static void	do_refactor(t_coder *coder)
 	usleep(coder->config->time_to_refactor * 1000);
 }
 
+static void	lone_coder(t_coder *coder)
+{
+	log_state(coder, "has taken a dongle");
+	while (is_stopped(coder->shared) == 0)
+		usleep(500);
+}
+
 // A coder's whole life cycle: acquire both dongles, compile,
 // release them, debug, refactor, repeat. Checks the stop flag
 // after every phase so it never starts a new phase once the
@@ -41,11 +48,17 @@ void	*coder_routine(void *arg)
 	t_coder	*coder;
 
 	coder = (t_coder *)arg;
+	if (coder->left == coder->right)
+	{
+		lone_coder(coder);
+		return (NULL);
+	}
 	while (is_stopped(coder->shared) == 0)
 	{
 		if (acquire_dongles(coder) == 0)
 			break;
-		log_state(coder, "has taken the dongles");
+		log_state(coder, "has taken a dongle");
+		log_state(coder, "has taken a dongle");
 		do_compile(coder);
 		release_dongles(coder);
 		if (is_stopped(coder->shared))
